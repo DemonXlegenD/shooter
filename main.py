@@ -38,7 +38,7 @@ while running:
         screen.blit(background, (i * bg_largeur + scroll, 0))
 
     #Scroll background
-    scroll -= 2
+    scroll -= 5
 
     # reset scroll
     if abs(scroll) > bg_largeur:
@@ -56,6 +56,9 @@ while running:
     #recuperer les ennemy
     for enemy in game.all_enemy:
         enemy.forward()
+        enemy.update_health_bar(screen) 
+        # while enemy.rect.x != 1600:
+        #     enemy.spawn()
 
     # appliquer l'ensemble des image de mon groupe de mosntres
     game.all_enemy.draw(screen)

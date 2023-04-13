@@ -22,9 +22,10 @@ class Projectile(pygame.sprite.Sprite):
         self.rect.x += self.speed
        
         #verif si collision monstre
-        if self.player.game.check_collision(self, self.player.game.all_enemy):
+        for enemy in self.player.game.check_collision(self, self.player.game.all_enemy):
             self.remove()
             #Mettre les damages ici
+            enemy.damage(self.player.attack)
             
             
 
