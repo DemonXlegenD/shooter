@@ -44,7 +44,11 @@ while running:
     if (game.is_playing):
         #déclencher les instructions de la partie
         game.update() 
-
+    elif((not game.is_playing) and game.name_needed):
+        while game.name_needed:
+            game.entername(game.screen.screen)    
+        game.inputbox.active = False
+        game.inputbox.fait = False
     #---------settings--------#
     elif((not game.is_playing) and game.are_buttons_settings_shown()):
 
@@ -67,8 +71,7 @@ while running:
         for i in range(0,6):
             game.screen.screen.blit(game.load_score.draw_score(i), game.load_score.score_rect)
     game.show_buttons()
-    if game.name_needed:
-        game.entername(game.screen.screen)
+    
     
     #Dessin de la fenêtre
     pygame.display.flip()
@@ -126,7 +129,7 @@ while running:
             for planete in game.buttons_planetes:
                 
                 if (planete.button_rect.collidepoint(event.pos) and game.are_buttons_planete_shown()):
-                    game.screen.change_bg(f"PygameAssets/bg_planete{i}.png")
+                    # game.screen.change_bg(f"PygameAssets/bg_planete{i}.png")
                     game.show_game_modes()
                 i += 1
                 #mettre le jeu en monde "lancé"

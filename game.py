@@ -225,10 +225,11 @@ class Game:
 
     def game_over(self):
         #remettre le jeu à neuf, retirer les monstres, remettre les joueurs à 100 de vie, jeu en attente
+    
         self.all_enemy = pygame.sprite.Group()
         self.player.hp = self.player.max_hp
         self.is_playing = False
-        self.score
+        self.name_needed = True
         self.score = 0
 
     def add_score(self, points = 10):

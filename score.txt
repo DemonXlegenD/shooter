@@ -1,1 +1,1 @@
-["default", 5, "default", 4, "default", 3, "default", 2, "default", 1]
+["salut", 140, "francois", 130, "FRANCOIS", 110, "ez eeJE SUIS", 60, "ee", 60]
