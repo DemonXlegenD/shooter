@@ -1,31 +1,58 @@
 import pygame
 import random
 import time
+from projectile import Projectile
+from powerup import PowerUp 
 
 #Classe des ennemis
 class Enemy(pygame.sprite.Sprite):
 
-    def __init__(self, game, max_hp, speed, attack):
+    def __init__(self, game, type, difficulty, surface):
         super().__init__()
         self.game = game
+        self.type = type
+        self.difficulty = difficulty
 
-        self.hp = max_hp
-        self.max_hp = max_hp
-        self.speed = speed
-        self.attack = attack
-        self.image = pygame.image.load('PygameAssets/button-settings.png')
+        self.spawned = False
+
+        if type == 0:
+            self.hp = 100 * self.difficulty
+            self.max_hp = 100 * self.difficulty
+            self.speed = 2 * self.difficulty
+            self.attack = 30 * self.difficulty
+            self.image = pygame.image.load('PygameAssets/asteroid.png')
+            self.image = pygame.transform.scale(self.image, (200,184))
+        elif type == 1:
+            self.hp = 30 * self.difficulty
+            self.max_hp = 30 * self.difficulty
+            self.speed = 0 * self.difficulty
+            self.attack = 200 * self.difficulty
+            self.image = pygame.image.load('PygameAssets/ship_gun_enemy.png')
+            self.image = pygame.transform.scale(self.image, (200,75))
+        elif type == 2:
+            self.hp = 25 * self.difficulty
+            self.max_hp = 25 * self.difficulty
+            self.speed = 0 * self.difficulty
+            self.attack = 200 * self.difficulty
+            self.image = pygame.image.load('PygameAssets/ship_gun_enemy2.png')
+            self.image = pygame.transform.scale(self.image, (200,75))
+
+
+
+
+        self.all_projectile = pygame.sprite.Group()
         # self.image = pygame.transform.scale(self.image, (1200,1200))
-        self.image = pygame.transform.scale(self.image, (200,200))
         self.rect = self.image.get_rect()
         self.projectileHit = 0
         self.destroy = time.time()
 
-        # self.rect.x = 2300
-        self.rect.x = 1600
-        self.rect.y = random.randint(100, 800)
+        self.rect.x = 2300
+        self.rect.y = random.randint(10, surface.get_height()-250)
 
-        self.origine_image = self.image
-        self.angle = 0
+        self.launch = time.time()
+        self.wait = time.time()
+        self.nbr_max = 3
+        self.nbr_actuel = 0
 
 
 
@@ -48,46 +75,87 @@ class Enemy(pygame.sprite.Sprite):
         pygame.draw.rect(surface, bar_color, bar_position)
         
 
-    def remove(self):
+    def remove(self, drop):
+        # Est ce que drop de powerup ou non + determination de laquelle
+        if drop == True:
+            powerup_ornot = random.randint(0, 2*(self.difficulty*2))
+            if powerup_ornot == 0:
+                if self.game.player.hp == self.game.player.max_hp:
+                    powerup = random.randint(1, 2)
+                elif self.game.player.upgrade == 6:
+                    powerup = 2
+                else:
+                    powerup = random.randint(0,2)
+                self.spawnPowerup(powerup)
+        # self.spawnPowerup(1)
         self.game.all_enemy.remove(self)
 
-    # def spawn(self):
-    #     self.rect.x -= 10
+    def spawnPowerup(self, type):
+        self.game.player.all_upgrades.add(PowerUp(self, type))
 
-    def rotation(self):
-        self.angle -= 0.5
-        self.image = pygame.transform.rotozoom(self.origine_image, self.angle, 1)
-        self.rect = self.image.get_rect(center=self.rect.center)
 
-    def damage(self, amount):
+    # Spawn
+    def spawn(self):
+        if (self.type == 1 or self.type == 2) and self.rect.x > 1604:
+            self.rect.x -= 5
+        else:
+            self.spawned = True
+        if self.type == 0 and self.rect.x < 1900:
+            self.spawned = True
+        
+    # Sort de l'écran apres etre trop resté
+    def gone(self):
+        self.rect.x += 10
+        self.rect.y -= 5
+        if self.rect.y < -200 or self.rect.x > 2100:
+            self.remove(False)
+
+    # Prend des dégâts
+    def damage(self, amount, ultime):
         if (self.hp - amount < amount) :
-            self.remove()
+            self.remove(True)
+            ultime.percent += 0.5
+            self.game.score += 10
         else:
             self.hp -= amount
 
-    def forward(self):
-        # Tourne s'il a une vitesse initiale
-        # if self.speed != 0:
-        #     self.rotation()
+    def launch_projectile(self):
+        self.all_projectile.add(Projectile(self.game.player, self, 1, 0))
+
+    def forward(self, ultime):
 
 
         #mets des degats aux joueurs si collision et supprime l'ennemi
         if self.game.check_collision(self, self.game.all_players):
-            self.remove()
-            self.game.player.damage(self.attack)
-            print(self.game.player.hp)
+            self.remove(False)
+            self.game.player.damage(self.attack, ultime)
         else:
+            self.spawn()
             self.rect.x -= self.speed
 
-
-        # in self.game.check_collision(self, self.game.player.all_projectile):
-        #     self.damage(self.game.player.attack)
-        #     print(self.hp)
-
+        # fais disparaitre les ennemis hors de l'ecran
         if self.rect.x < -200:
-            self.remove()
+            self.remove(False)
 
-        if self.destroy + 10 < time.time():
-            # while self.rect.x != 2300:
-            #     self.rect.x += 10
-            self.remove()
+        # fait disparaitre les ennemis fixes
+        if self.destroy + 10 < time.time() and (self.type == 1 or self.type == 2):
+            self.gone()
+
+
+        # Tirer des missiles pour le type 1
+        if self.type == 1 and self.rect.x == 1600:
+            if self.launch + 2/self.difficulty <= time.time():
+                self.launch_projectile()
+                self.launch = time.time()
+
+        # Tirer des missiles pour le type 2
+        if self.type == 2 and self.rect.x == 1600:
+            if self.launch + 3/self.difficulty <= time.time():
+                if self.nbr_actuel < self.nbr_max:
+                    if self.wait + 0.5 <= time.time():
+                        self.launch_projectile()
+                        self.nbr_actuel += 1
+                        self.wait = time.time()
+                if self.nbr_actuel >= self.nbr_max:
+                    self.launch = time.time()
+                    self.nbr_actuel = 0

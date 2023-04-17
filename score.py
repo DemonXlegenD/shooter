@@ -3,14 +3,15 @@ import json
 import pygame
 
 class Score:
-    def __init__(self, score, user_name='test'):
+    def __init__(self, score=0, user_name='test'):
+        self.updated = False
         self.name_needed = False
         self.name = user_name
         self.old_score = []
         self.new_score = score
         self.existing_files = False
         self.check_files()
-        self.load_old_score
+        self.load_old_score()
         self.score_rect = (100, 400)
 
     
@@ -22,7 +23,7 @@ class Score:
             self.score_rect = (65, 410)
         else:
             score_text = font.render(f"{number}°: {self.old_score[number + number-1]} pts for {self.old_score[number + number -2]}", 1, (255, 0, 0))
-            self.score.score_rect = (100, 450 + (20*(number-1)))
+            self.score_rect = (100, 450 + (20*(number-1)))
         return score_text
 
 
@@ -53,35 +54,39 @@ class Score:
             self.name_needed = True
 
     def update_score(self):
-        fichier = open("score.txt", "w")
+        if not self.updated:
 
-        if self.new_score >= self.old_score[1]:
-            for i in range(7, -1, -1):
-                self.old_score[i+2] = self.old_score[i]
-            self.old_score[0] = self.name
-            self.old_score[1] = self.new_score
-        elif self.new_score >= self.old_score[3]:
-            for i in range (7, 1, -1):
-                self.old_score[i+2] = self.old_score[i]
-            self.old_score[2] = self.name
-            self.old_score[3] = self.new_score
-        elif self.new_score >= self.old_score[3]:
-            for i in range (7, 3, -1):
-                self.old_score[i+2] = self.old_score[i]
-            self.old_score[4] = self.name
-            self.old_score[5] = self.new_score
-        elif self.new_score >= self.old_score[3]:
-            for i in range (7, 5, -1):
-                self.old_score[i+2] = self.old_score[i]
-            self.old_score[6] = self.name
-            self.old_score[7] = self.new_score
-        elif self.new_score >= self.old_score[9]:
-            self.old_score[8] = self.name
-            self.old_score[10] = self.new_score
+            fichier = open("score.txt", "w")
 
-        json.dump(self.old_score, fichier)
-        print(self.old_score)
-        fichier.close()
+            if self.new_score >= self.old_score[1]:
+                for i in range(7, -1, -1):
+                    self.old_score[i+2] = self.old_score[i]
+                self.old_score[0] = self.name
+                self.old_score[1] = self.new_score
+            elif self.new_score >= self.old_score[3]:
+                for i in range (7, 1, -1):
+                    self.old_score[i+2] = self.old_score[i]
+                self.old_score[2] = self.name
+                self.old_score[3] = self.new_score
+            elif self.new_score >= self.old_score[3]:
+                for i in range (7, 3, -1):
+                 self.old_score[i+2] = self.old_score[i]
+                self.old_score[4] = self.name
+                self.old_score[5] = self.new_score
+            elif self.new_score >= self.old_score[3]:
+                for i in range (7, 5, -1):
+                    self.old_score[i+2] = self.old_score[i]
+                self.old_score[6] = self.name
+                self.old_score[7] = self.new_score
+            elif self.new_score >= self.old_score[9]:
+                self.old_score[8] = self.name
+                self.old_score[9] = self.new_score
+
+            json.dump(self.old_score, fichier)
+            print(self.old_score)
+            fichier.close()
+            self.name_needed = False
+            self.updated =  True
 
 # score = Score(5)
 # score.check_files()

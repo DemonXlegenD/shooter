@@ -1,25 +1,42 @@
 import pygame
 import math
+import time
 
-#Initialisation des dimensions de la fenêtre
-largeur = 1920
-hauteur = 1080
+class Screen:
+    def __init__(self, w, h):
+        #Width, height of the screen and of the background
+        self.width = w
+        self.height = h
+        self.bg_width = w
+        self.bg_height = h 
+        
+        #State of the screen
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.scroll = 0
+        self.tiles = math.ceil(self.width/self.bg_width) + 1
+        self.seconde = time.time()
 
-#Initialize Pygame
-pygame.init()
+        #Background
+        pygame.display.set_caption("Shoot'em up")
+        self.background = pygame.image.load('PygameAssets/bgspace.jpg')
+        self.background = pygame.transform.scale(self.background, (self.bg_width, self.bg_height))
+        self.banner = pygame.image.load('PygameAssets/banner.png')
+        self.banner = pygame.transform.scale(self.banner, (500, 500))
+        self.banner_rect = self.banner.get_rect()
+        self.banner_rect.x = math.ceil(self.screen.get_width()/3)
 
-#Création de la fenêtre en passant ses dimensions en pixel sous forme d'un tuple
-pygame.display.set_caption("Shoot'em up")
-screen = pygame.display.set_mode((largeur,hauteur))
 
-#importer de charger l'arrière plan de notre jeu
-background = pygame.image.load('PygameAssets/bgspace.jpg')
-bg_largeur = 1920
-bg_hauteur = 1080
-background = pygame.transform.scale(background, (bg_largeur, bg_hauteur))
+    def show_screen(self):
+        self.screen.blit(self.background, (0,0))
+        self.screen.blit(self.banner, self.banner_rect)
 
-#importer charger notre bannière
-banner = pygame.image.load('PygameAssets/banner.png')
-banner = pygame.transform.scale(banner, (500, 500))
-banner_rect = banner.get_rect()
-banner_rect.x = math.ceil(screen.get_width()/3)
+    def change_bg(self, path):
+        self.background = pygame.image.load(path)
+        self.background = pygame.transform.scale(self.background, (self.bg_width, self.bg_height))
+    
+    def scrolling(self, t):
+        if abs(self.scroll) > self.bg_width:
+            self.scroll = 0
+        for i in range(0, self.tiles):
+            self.screen.blit(self.background, (i * self.bg_width + self.scroll, 0))
+        self.scroll -= t

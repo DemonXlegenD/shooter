@@ -10,13 +10,21 @@ class Spaceship(pygame.sprite.Sprite):
         self.hp = max_hp
         self.max_hp = max_hp
         self.velocity = velocity
-        self.attack = attack
-        self.all_projectile = pygame.sprite.Group()
-        self.image = pygame.image.load('PygameAssets/Spaceship2.png')
+        self.upgrade = 1
+        self.attack = attack * (self.upgrade/2)
+        self.ult = False
+        self.smart_bomb_count = 5
+
+        if self.upgrade == 1:
+            self.image = pygame.image.load('PygameAssets/Spaceship2.png')
+
         self.image = pygame.transform.scale(self.image, (200, 150))
         self.rect = self.image.get_rect()
         self.rect.x = 200
         self.rect.y = 200
+
+        self.all_projectile = pygame.sprite.Group()
+        self.all_upgrades = pygame.sprite.Group()
 
 
     def update_health_bar(self, surface):
@@ -38,7 +46,22 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     def launch_projectile(self):
-        self.all_projectile.add(Projectile(self))
+        self.all_projectile.add(Projectile(self, 0, 0, self.upgrade)) # les 0 signifient que le projectile est lancé par le joueur
+
+    def ultimate(self, ultime):
+        if self.ult == True:
+            for enemy in self.game.all_enemy:
+                enemy.remove(True)
+            ultime.percent = 0
+            self.ult = False
+            print(self.ult)
+
+    def smart_bomb(self):
+        if self.smart_bomb_count != 0:
+            for enemy in self.game.all_enemy:
+                for proj in enemy.all_projectile:
+                    proj.remove()
+                    self.smart_bomb_count -= 1
                     
     def get_health(hp, max_hp, heal):
         if hp+heal <= max_hp:
@@ -46,10 +69,12 @@ class Spaceship(pygame.sprite.Sprite):
         else:
             hp = max_hp 
 
-    def damage(self, amount):
+    def damage(self, amount, ultime):
         if (self.hp - amount <= 0) :
+            self.game.test_score()
             #si le joueur n'a plus de point de vie
             self.game.game_over()
+            ultime.percent = 0
         else:
             self.hp -= amount
             
@@ -67,3 +92,17 @@ class Spaceship(pygame.sprite.Sprite):
 
     def move_up(self):
         self.rect.y -= self.velocity
+
+    def upgrade_ship(self):
+        if self.upgrade == 2:
+            self.image = pygame.image.load('PygameAssets/vaisseaugrade1.png')
+        elif self.upgrade == 3:
+            self.image = pygame.image.load('PygameAssets/vaisseaugrade2.png')
+        elif self.upgrade == 4:
+            self.image = pygame.image.load('PygameAssets/vaisseaugrade3.png')
+        elif self.upgrade == 5:
+            self.image = pygame.image.load('PygameAssets/vaisseaugrade4.png')
+        elif self.upgrade == 6:
+            self.image = pygame.image.load('PygameAssets/vaisseaugrade5.png')
+        self.attack = self.attack + 2*self.upgrade
+        self.image = pygame.transform.scale(self.image, (200, 150))

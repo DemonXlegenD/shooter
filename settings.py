@@ -1,5 +1,3 @@
-import pygame
-
 #créer une classe qui va représenter nos settings
 class Settings:
 
