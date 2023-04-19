@@ -29,6 +29,7 @@ class Game:
         self.ult_event = UltimateCharging(self.difficulty)
         
         #générer notre joueurs
+        self.number_players = 1
         self.all_players = pygame.sprite.Group()
         self.player = Spaceship(self, 200,15,15)
         self.all_players.add(self.player)
@@ -58,6 +59,8 @@ class Game:
             Button(self.screen, 1.20, 8.5, 175, 175,'PygameAssets/planete5.png'),
             Button(self.screen, 1.25, 1.25, 150, 150,'PygameAssets/planete6.png')
             ]
+
+        self.button_space = Button(self.screen, 20, 10, 700, 500,'PygameAssets/champdemeteorite.png')
         
         #=====================================================================================================================#
         #------------------------------------------------------SETTINGS-------------------------------------------------------#
@@ -132,6 +135,7 @@ class Game:
     def show_menu(self):
         self.button_play.is_shown = True
         self.buttons_settings[0].is_shown = True
+        self.button_space.is_shown = False
         self.button_back.is_shown = False
         for settings in self.buttons_settings[1:]:
             settings.is_shown = False
@@ -144,6 +148,7 @@ class Game:
     def show_planetes(self):
         self.button_play.is_shown = False
         self.button_back.is_shown = True
+        self.button_space.is_shown = True
         for settings in self.buttons_settings:
             settings.is_shown = False
         for planete in self.buttons_planetes:
@@ -155,6 +160,7 @@ class Game:
     def show_game_modes(self):
         self.button_play.is_shown = False
         self.button_back.is_shown = True
+        self.button_space.is_shown = False
         for settings in self.buttons_settings:
             settings.is_shown = False
         for planete in self.buttons_planetes:
@@ -165,6 +171,7 @@ class Game:
     def to_show_settings(self):
         self.button_play.is_shown = False
         self.buttons_settings[0].is_shown = False
+        self.button_space.is_shown = False
         for settings in self.buttons_settings[1::2]:
             settings.is_shown = True
         for planete in self.buttons_planetes:
@@ -177,6 +184,7 @@ class Game:
     def show_buttons(self):
         self.button_play.show_button()
         self.button_back.show_button()
+        self.button_space.show_button()
         for settings in self.buttons_settings:
             settings.show_button()
         for planete in self.buttons_planetes:
@@ -231,6 +239,7 @@ class Game:
         self.is_playing = False
         self.name_needed = True
         self.score = 0
+        self.pressed = {}
 
     def add_score(self, points = 10):
         self.score += points
@@ -284,6 +293,10 @@ class Game:
         for powerUp in self.player.all_upgrades:
             powerUp.forward()
         self.player.all_upgrades.draw(self.screen.screen)
+
+        #  ------------------------------------------- Ultime -------------------------------------------
+        # actualiser la barre d'evenement du jeu
+        self.ult_event.update_bar(self.screen.screen, self.player)
 
         #vérifier si le joueur souhaite aller à gauche ou à droite
         if (self.pressed.get(pygame.K_RIGHT) or self.pressed.get(pygame.K_d)) and self.player.rect.x + self.player.rect.width<=  self.screen.screen.get_width():

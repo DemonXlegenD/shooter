@@ -18,6 +18,7 @@ class InputBox:
             if self.rect.collidepoint(event.pos):
                 self.active = not self.active
                 self.text= ""
+                self.txt_surface = self.font.render("", True, self.color)
             else:
                 self.active = False
             self.color = self.color_active if self.active else self.color__inactive

@@ -92,6 +92,9 @@ while running:
             #détecter si la touche ctrl est enclenchée pour lancer notre ult
             if event.key == pygame.K_LCTRL:
                 game.player.ultimate(game.ult_event)
+            #détecter si la touche alt est enclenchée pour lancer bomb
+            if event.key == pygame.K_LALT:
+                game.player.smart_bomb()
 
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
@@ -126,10 +129,12 @@ while running:
                     game.create_player(i+1)
                     game.start()
             i = 0     
+            if (game.button_space.button_rect.collidepoint(event.pos) and game.are_buttons_planete_shown()):
+                game.show_game_modes()
             for planete in game.buttons_planetes:
                 
                 if (planete.button_rect.collidepoint(event.pos) and game.are_buttons_planete_shown()):
-                    # game.screen.change_bg(f"PygameAssets/bg_planete{i}.png")
+                    game.screen.change_bg(f"PygameAssets/planete{i}map.png")
                     game.show_game_modes()
                 i += 1
                 #mettre le jeu en monde "lancé"
