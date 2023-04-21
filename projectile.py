@@ -35,8 +35,8 @@ class Projectile(pygame.sprite.Sprite):
             elif self.level >= 6:
                 self.image = pygame.image.load('PygameAssets/cyan_ball1.png')
             self.rect = self.image.get_rect()
-            self.rect.x = player.rect.x + 120
-            self.rect.y = player.rect.y + 80
+            self.rect.x = player.rect.x + 150
+            self.rect.y = player.rect.y + 85
         elif self.target == 1:
             self.image = pygame.image.load('PygameAssets/red_beam.png')
             self.rect = self.image.get_rect()

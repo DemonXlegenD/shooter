@@ -1,14 +1,15 @@
 import pygame
 import random
 import time
+import animation
 from projectile import Projectile
 from powerup import PowerUp 
+from particules import Explosion
 
 #Classe des ennemis
-class Enemy(pygame.sprite.Sprite):
+class Enemy(animation.AnimateSprite):
 
     def __init__(self, game, type, difficulty, surface):
-        super().__init__()
         self.game = game
         self.type = type
         self.difficulty = difficulty
@@ -16,25 +17,25 @@ class Enemy(pygame.sprite.Sprite):
         self.spawned = False
 
         if type == 0:
+            super().__init__("asteroid")
             self.hp = 100 * self.difficulty
             self.max_hp = 100 * self.difficulty
             self.speed = 2 * self.difficulty
             self.attack = 30 * self.difficulty
-            self.image = pygame.image.load('PygameAssets/asteroid.png')
             self.image = pygame.transform.scale(self.image, (200,184))
         elif type == 1:
+            super().__init__("ship1_")
             self.hp = 30 * self.difficulty
             self.max_hp = 30 * self.difficulty
             self.speed = 0 * self.difficulty
             self.attack = 200 * self.difficulty
-            self.image = pygame.image.load('PygameAssets/ship_gun_enemy.png')
             self.image = pygame.transform.scale(self.image, (200,75))
         elif type == 2:
+            super().__init__("ship2_")
             self.hp = 25 * self.difficulty
             self.max_hp = 25 * self.difficulty
             self.speed = 0 * self.difficulty
             self.attack = 200 * self.difficulty
-            self.image = pygame.image.load('PygameAssets/ship_gun_enemy2.png')
             self.image = pygame.transform.scale(self.image, (200,75))
 
 
@@ -54,8 +55,16 @@ class Enemy(pygame.sprite.Sprite):
         self.nbr_max = 3
         self.nbr_actuel = 0
 
+        self.gone_where = random.randint(-5, 5)
+
+        # Animation
+        self.first_frame = True
+        self.wait_anim = time.time()
 
 
+    def update_animation(self):
+        self.animate(self.type, False)
+        self.first_frame = False
 
 # idée : changer la couleur de la barre en fonction de l'environnement
     def update_health_bar(self, surface):
@@ -75,19 +84,48 @@ class Enemy(pygame.sprite.Sprite):
         pygame.draw.rect(surface, bar_color, bar_position)
         
 
-    def remove(self, drop):
+    def remove(self, drop, explode):
         # Est ce que drop de powerup ou non + determination de laquelle
         if drop == True:
             powerup_ornot = random.randint(0, 2*(self.difficulty*2))
             if powerup_ornot == 0:
+
+                # Tous les bonus peuvent se drop
+                powerups = [(0, True), (1, True), (2, True)]
+                # heal =  0
+                # upgrade = 1
+                # score = 2
+
+                #  Powerup heal desactivé
                 if self.game.player.hp == self.game.player.max_hp:
-                    powerup = random.randint(1, 2)
-                elif self.game.player.upgrade == 6:
-                    powerup = 2
-                else:
-                    powerup = random.randint(0,2)
-                self.spawnPowerup(powerup)
+                    powerups[0] = (0, False)
+
+                # Powerup upgrade desactivé -> plus l'upgrade est haute, plus c'est difficile d'avoir de nouveaux bonus upgrade
+                if self.game.player.upgrade == 6:
+                    powerups[1] = (1, False)
+                elif not self.game.player.upgrade == 1:
+                    if random.randint(1,self.game.player.upgrade) == 1:
+                        powerups[1] = (1, False)
+
+                # Filtrer les powerups pour supprimer ceux qui sont en False
+                available_powerups = list(filter(lambda x: x[1], powerups))
+                    # lambda permet de vérifier le deuxieme element de chaque tuple dans powerups
+
+                # Sélectionner un powerup de manière aléatoire parmi ceux qui sont en True
+                if available_powerups:
+                    selected_powerup = random.randint(0, len(available_powerups)-1)
+                    powerup_value = available_powerups[selected_powerup][0]
+                    self.spawnPowerup(powerup_value)
+
+
         # self.spawnPowerup(1)
+        if explode:
+            if self.type == 0:
+                self.game.all_explo.add(Explosion(self.rect.x, self.rect.y, self.game, True))
+            else:
+                self.game.all_explo.add(Explosion(self.rect.x, self.rect.y, self.game, False))
+            self.game.player.killed += 1
+        print(self.game.player.killed)
         self.game.all_enemy.remove(self)
 
     def spawnPowerup(self, type):
@@ -106,14 +144,14 @@ class Enemy(pygame.sprite.Sprite):
     # Sort de l'écran apres etre trop resté
     def gone(self):
         self.rect.x += 10
-        self.rect.y -= 5
+        self.rect.y -= self.gone_where
         if self.rect.y < -200 or self.rect.x > 2100:
-            self.remove(False)
+            self.remove(False, False)
 
     # Prend des dégâts
     def damage(self, amount, ultime):
         if (self.hp - amount < amount) :
-            self.remove(True)
+            self.remove(True, True)
             ultime.percent += 0.5
             self.game.score += 10
         else:
@@ -121,13 +159,14 @@ class Enemy(pygame.sprite.Sprite):
 
     def launch_projectile(self):
         self.all_projectile.add(Projectile(self.game.player, self, 1, 0))
+        self.start_animation()
 
     def forward(self, ultime):
 
 
         #mets des degats aux joueurs si collision et supprime l'ennemi
         if self.game.check_collision(self, self.game.all_players):
-            self.remove(False)
+            self.remove(False, True)
             self.game.player.damage(self.attack, ultime)
         else:
             self.spawn()
@@ -135,7 +174,7 @@ class Enemy(pygame.sprite.Sprite):
 
         # fais disparaitre les ennemis hors de l'ecran
         if self.rect.x < -200:
-            self.remove(False)
+            self.remove(False, False)
 
         # fait disparaitre les ennemis fixes
         if self.destroy + 10 < time.time() and (self.type == 1 or self.type == 2):

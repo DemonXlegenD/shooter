@@ -19,8 +19,7 @@ class Game:
         self.which_screen = 0
         #définir si notre jeu a commencé ou non
         self.is_playing = False
-        self.mode_is_choose = False
-        self.planete_is_choose = False
+        self.is_gameover = False
         self.difficulty = 1
         #input player
         self.inputbox = InputBox(100, 100, 140, 32)
@@ -44,36 +43,41 @@ class Game:
         #=====================================================================================================================#
         #-------------------------------------------------------PLAY----------------------------------------------------------#
         #=====================================================================================================================# 
-        self.button_play = Button(self.screen, 2.7, 1.7, 400, 150,'PygameAssets/button.png')
+        self.button_play = Button(self.screen, 2.7, 2, 450, 200,'PygameAssets/button/button-play.png')
+
+        #=====================================================================================================================#
+        #-------------------------------------------------------QUIT----------------------------------------------------------#
+        #=====================================================================================================================# 
+        self.button_quit = Button(self.screen, 2.7, 1.45, 450, 200,'PygameAssets/button/button-quit.png')
 
         #=====================================================================================================================#
         #------------------------------------------------------PLANETES-------------------------------------------------------#
         #=====================================================================================================================#
 
         self.buttons_planetes = [
-            Button(self.screen, 1.5, 2.50, 300, 300,'PygameAssets/terre.png'), 
-            Button(self.screen, 2, 1.5, 200, 200,'PygameAssets/planete1.png'), 
-            Button(self.screen, 1.80, 7.5, 250, 250,'PygameAssets/planete2.png'),
-            Button(self.screen, 2.5, 3, 200, 200,'PygameAssets/planete3.png'),
-            Button(self.screen, 8, 1.5, 450, 300,'PygameAssets/planete4.png'),
-            Button(self.screen, 1.20, 8.5, 175, 175,'PygameAssets/planete5.png'),
-            Button(self.screen, 1.25, 1.25, 150, 150,'PygameAssets/planete6.png')
+            Button(self.screen, 1.5, 2.50, 300, 300,'PygameAssets/space/planetes/terre.png'), 
+            Button(self.screen, 2, 1.5, 200, 200,'PygameAssets/space/planetes/planete1.png'), 
+            Button(self.screen, 1.80, 7.5, 250, 250,'PygameAssets/space/planetes/planete2.png'),
+            Button(self.screen, 2.5, 10, 200, 200,'PygameAssets/space/planetes/planete3.png'),
+            Button(self.screen, 8, 1.5, 450, 300,'PygameAssets/space/planetes/planete4.png'),
+            Button(self.screen, 1.20, 8.5, 175, 175,'PygameAssets/space/planetes/planete5.png'),
+            Button(self.screen, 1.25, 1.25, 150, 150,'PygameAssets/space/planetes/planete6.png')
             ]
 
-        self.button_space = Button(self.screen, 20, 10, 700, 500,'PygameAssets/champdemeteorite.png')
+        self.button_space = Button(self.screen, 20, 10, 700, 500,'PygameAssets/space/champdemeteorite.png')
         
         #=====================================================================================================================#
         #------------------------------------------------------SETTINGS-------------------------------------------------------#
         #=====================================================================================================================#
 
         self.buttons_settings = [
-            Button(self.screen, 100, 100, 50, 50,'PygameAssets/button-settings.png'),
-            Button(self.screen, 10.15, 4, 200, 150,'PygameAssets/Gameplay.png'),
-            Button(self.screen, 10.15, 4, 200, 150,'PygameAssets/Gameplay_underline.png'),
-            Button(self.screen, 2.25, 4, 200, 150,'PygameAssets/audio.png'),
-            Button(self.screen, 2.25, 4, 200, 150,'PygameAssets/audio_underline.png'),
-            Button(self.screen, 1.3, 4, 200, 150,'PygameAssets/controle.png'),
-            Button(self.screen, 1.3, 4, 200, 150,'PygameAssets/controle_underline.png')
+            Button(self.screen, 100, 100, 50, 50,'PygameAssets/button/button-settings.png'),
+            Button(self.screen, 10.15, 4, 200, 150,'PygameAssets/button/Gameplay.png'),
+            Button(self.screen, 10.15, 4, 200, 150,'PygameAssets/button/Gameplay_underline.png'),
+            Button(self.screen, 2.25, 4, 200, 150,'PygameAssets/button/audio.png'),
+            Button(self.screen, 2.25, 4, 200, 150,'PygameAssets/button/audio_underline.png'),
+            Button(self.screen, 1.3, 4, 200, 150,'PygameAssets/button/controle.png'),
+            Button(self.screen, 1.3, 4, 200, 150,'PygameAssets/button/controle_underline.png')
     
         ]
 
@@ -82,20 +86,21 @@ class Game:
         #=====================================================================================================================#
 
         self.buttons_difficulties = [
-            Button(self.screen, 3, 6, 500, 150,'PygameAssets/easy-button.png'),
-            Button(self.screen, 3, 3, 500, 150,'PygameAssets/medium-button.png'),
-            Button(self.screen, 3, 2, 500, 150,'PygameAssets/hard-button.png'),
-            Button(self.screen, 3, 1.5, 500, 150,'PygameAssets/nightmare-button.png')
+            Button(self.screen, 3, 6, 500, 150,'PygameAssets/button/easy-button.png'),
+            Button(self.screen, 3, 3, 500, 150,'PygameAssets/button/medium-button.png'),
+            Button(self.screen, 3, 2, 500, 150,'PygameAssets/button/hard-button.png'),
+            Button(self.screen, 3, 1.5, 500, 150,'PygameAssets/button/nightmare-button.png')
         ]
         #=====================================================================================================================#
         #--------------------------------------------------------BACK---------------------------------------------------------#
         #=====================================================================================================================#
-        self.button_back =  Button(self.screen, 100, 100, 100, 100,'PygameAssets/retour.png')
+        self.button_back =  Button(self.screen, 100, 100, 100, 100,'PygameAssets/button/retour.png')
 
 
 
         #groupe de monstres
-        self.all_enemy = pygame.sprite.Group()          
+        self.all_enemy = pygame.sprite.Group()       
+        self.all_explo = pygame.sprite.Group()   
         
     def test_score(self):
         self.load_score.new_score = self.score
@@ -134,6 +139,7 @@ class Game:
     #Show the main menu and nothing else
     def show_menu(self):
         self.button_play.is_shown = True
+        self.button_quit.is_shown = True
         self.buttons_settings[0].is_shown = True
         self.button_space.is_shown = False
         self.button_back.is_shown = False
@@ -147,6 +153,7 @@ class Game:
     #Show the planetes and nothing else
     def show_planetes(self):
         self.button_play.is_shown = False
+        self.button_quit.is_shown = False
         self.button_back.is_shown = True
         self.button_space.is_shown = True
         for settings in self.buttons_settings:
@@ -159,6 +166,7 @@ class Game:
     #Show the game modes and nothing else
     def show_game_modes(self):
         self.button_play.is_shown = False
+        self.button_quit.is_shown = False
         self.button_back.is_shown = True
         self.button_space.is_shown = False
         for settings in self.buttons_settings:
@@ -170,6 +178,7 @@ class Game:
 
     def to_show_settings(self):
         self.button_play.is_shown = False
+        self.button_quit.is_shown = False
         self.buttons_settings[0].is_shown = False
         self.button_space.is_shown = False
         for settings in self.buttons_settings[1::2]:
@@ -183,6 +192,7 @@ class Game:
     #Show the buttons
     def show_buttons(self):
         self.button_play.show_button()
+        self.button_quit.show_button()
         self.button_back.show_button()
         self.button_space.show_button()
         for settings in self.buttons_settings:
@@ -232,13 +242,15 @@ class Game:
 
 
     def game_over(self):
-        #remettre le jeu à neuf, retirer les monstres, remettre les joueurs à 100 de vie, jeu en attente
+        #remettre le jeu à neuf, retirer les ennemis, remettre les joueurs à 100 de vie, jeu en attente
     
         self.all_enemy = pygame.sprite.Group()
         self.player.hp = self.player.max_hp
         self.is_playing = False
-        self.name_needed = True
+        self.is_gameover = True
+        self.screen.scrolling(0)
         self.score = 0
+        
         self.pressed = {}
 
     def add_score(self, points = 10):
@@ -255,6 +267,14 @@ class Game:
         
         # afficher barre de vie
         self.player.update_health_bar(self.screen.screen)
+
+        # Animation du tir
+        if self.player.first_frame:
+            self.player.update_animation()
+        if self.player.wait_anim + 0.04 <= time.time():
+            self.player.update_animation()
+            self.player.wait_anim = time.time()
+        
 
         # Spawn ennemis
         if time.time() > self.screen.seconde + 3:
@@ -285,8 +305,42 @@ class Game:
             enemy.forward(self.ult_event)
             enemy.update_health_bar(self.screen.screen) 
 
+            # Animation du tir
+            try:
+                if enemy.first_frame:
+                    enemy.update_animation()
+                if enemy.wait_anim + 0.04 <= time.time():
+                    enemy.update_animation()
+                    enemy.wait_anim = time.time()
+            except:
+                None
+
         # appliquer l'ensemble des image de mon groupe d'ennemi
         self.all_enemy.draw(self.screen.screen)
+
+
+         #  ------------------------------------------- Explosion -------------------------------------------
+        #recuperer les explosions
+        for explosion in self.all_explo:
+            if explosion.first:
+                explosion.update_animation()
+            # Temps d'attente entre chaque frame
+            if explosion.wait_anim + 0.06 <= time.time():
+                explosion.update_animation()
+                if explosion.remove_time + 0.5 <= time.time():
+                    explosion.remove()
+                explosion.wait_anim = time.time()
+
+        # appliquer l'ensemble des image de mon groupe d'explosions
+        self.all_explo.draw(self.screen.screen)
+
+        #  ------------------------------------------- Smart bomb -------------------------------------------
+        for smart in self.player.all_smart_bomb:
+            smart.growing(10)
+
+            
+
+        self.player.all_smart_bomb.draw(self.screen.screen)
 
         #  ------------------------------------------- powerUp -------------------------------------------
         #recuperer les ennemy
@@ -316,19 +370,15 @@ class Game:
 
     def spawn_monster(self, screen):
         enemy_number = random.randint(1, 2)
-        print("number", enemy_number)
 
         for i in range(0, enemy_number):
 
             enemy_spawn = random.randint(0,2)
-            print("spawn", enemy_spawn)
 
             if enemy_spawn == 0:
-                print("0")
                 # Ennemi de collision
                 enemy = Enemy(self, 0, self.difficulty, screen)
             elif enemy_spawn == 1:
-                print("1")
                 # Ennemi one shot
                 # Ennemi missiles
                 enemy = Enemy(self, 1, self.difficulty, screen)

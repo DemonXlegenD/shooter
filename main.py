@@ -24,13 +24,13 @@ pygame.init()
 game = Game()
 settings = Settings()
 
-game.screen.show_screen()
-#Boucle de jeu
+
+#Boucle de jeu 
 
 running = True
 
 while running:
-
+    
     # draw scrolling background
     if game.is_playing:
         #Scroll background
@@ -44,6 +44,13 @@ while running:
     if (game.is_playing):
         #déclencher les instructions de la partie
         game.update() 
+    elif((not game.is_playing) and game.is_gameover):
+        game.screen.screen.blit(game.screen.gameover, game.screen.gameover_rect)
+        game.screen.end_screen()
+        if(game.screen.gameover_rect.y > game.screen.height + 300):
+            game.is_gameover = False
+            game.screen.gameover_rect.y = -700
+            game.screen.change_bg(f"PygameAssets/space/bgspace.jpg")
     elif((not game.is_playing) and game.name_needed):
         while game.name_needed:
             game.entername(game.screen.screen)    
@@ -67,7 +74,7 @@ while running:
     #vérifier si notre jeu n'a pas commencé
     else:
         game.show_menu()
-
+        game.screen.show_screen()
         for i in range(0,6):
             game.screen.screen.blit(game.load_score.draw_score(i), game.load_score.score_rect)
     game.show_buttons()
@@ -81,37 +88,52 @@ while running:
             pygame.quit()
             print("Fermeture du jeu")
             sys.exit()
+
             
 
-        if event.type == pygame.KEYDOWN and game.is_playing:
-            game.pressed[event.key] = True
+        if event.type == pygame.KEYDOWN:
+            if game.is_playing:
+                game.pressed[event.key] = True
 
-            #détecter si la touche espace est enclenchée pour lance notre projectile
-            if event.key == pygame.K_SPACE:
-                game.player.launch_projectile()
-            #détecter si la touche ctrl est enclenchée pour lancer notre ult
-            if event.key == pygame.K_LCTRL:
-                game.player.ultimate(game.ult_event)
-            #détecter si la touche alt est enclenchée pour lancer bomb
-            if event.key == pygame.K_LALT:
-                game.player.smart_bomb()
+                #détecter si la touche espace est enclenchée pour lance notre projectile
+                if event.key == pygame.K_SPACE:
+                    game.player.launch_projectile()
+                #détecter si la touche ctrl est enclenchée pour lancer notre ult
+                if event.key == pygame.K_LCTRL:
+                    game.player.ultimate(game.ult_event)
+                #détecter si la touche alt est enclenchée pour lancer bomb
+                if event.key == pygame.K_LALT:
+                    game.player.smart_bomb()
+        
+            if event.key == pygame.K_ESCAPE and game.button_back.is_shown:
+                game.screen.change_bg(f"PygameAssets/space/bgspace.jpg")
+                if(game.are_buttons_difficulty_shown()):
+                    game.show_planetes()
+                elif(game.are_buttons_planete_shown() or game.are_buttons_settings_shown()):
+                    game.show_menu()
+
 
         elif event.type == pygame.KEYUP:
             game.pressed[event.key] = False
 
         elif (event.type == pygame.MOUSEBUTTONDOWN):
-
-
+            
+            if (game.button_quit.button_rect.collidepoint(event.pos) and game.button_quit.is_shown):
+                pygame.quit()
+                print("Fermeture du jeu")
+                sys.exit()
+            
             #vérification pour svaoir si la souris est en collision avec le bouton
-            if (game.button_play.button_rect.collidepoint(event.pos) and game.button_play.is_shown):
+            elif (game.button_play.button_rect.collidepoint(event.pos) and game.button_play.is_shown):
                 game.show_planetes()
 
             #vérification pour svaoir si la souris est en collision avec le bouton
-            if(game.buttons_settings[0].button_rect.collidepoint(event.pos) and game.buttons_settings[0].is_shown):
+            elif(game.buttons_settings[0].button_rect.collidepoint(event.pos) and game.buttons_settings[0].is_shown):
          
                 game.to_show_settings()
 
             elif(game.button_back.button_rect.collidepoint(event.pos) and game.button_back.is_shown):
+                game.screen.change_bg(f"PygameAssets/space/bgspace.jpg")
                 if(game.are_buttons_difficulty_shown()):
                     game.show_planetes()
                 elif(game.are_buttons_planete_shown() or game.are_buttons_settings_shown()):
@@ -128,15 +150,18 @@ while running:
                 if (game.buttons_difficulties[i].button_rect.collidepoint(event.pos) and game.buttons_difficulties[i].is_shown):
                     game.create_player(i+1)
                     game.start()
-            i = 0     
-            if (game.button_space.button_rect.collidepoint(event.pos) and game.are_buttons_planete_shown()):
-                game.show_game_modes()
-            for planete in game.buttons_planetes:
-                
-                if (planete.button_rect.collidepoint(event.pos) and game.are_buttons_planete_shown()):
-                    game.screen.change_bg(f"PygameAssets/planete{i}map.png")
+                 
+            if (game.are_buttons_planete_shown()):
+                i = 0
+                if(game.button_space.button_rect.collidepoint(event.pos)):
+                    game.screen.change_bg(f"PygameAssets/space/bgspace.jpg")
                     game.show_game_modes()
-                i += 1
+                for planete in game.buttons_planetes:   
+                    if (planete.button_rect.collidepoint(event.pos) and game.are_buttons_planete_shown()):
+                        game.screen.change_bg(f"PygameAssets/space/planetes/planete{i}map.png")
+                        game.show_game_modes()
+                    i += 1
+
                 #mettre le jeu en monde "lancé"
                 
 

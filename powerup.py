@@ -1,6 +1,7 @@
 import pygame
 import random
 
+
 class PowerUp(pygame.sprite.Sprite):
 
     def __init__(self, enemy, type):
@@ -44,4 +45,6 @@ class PowerUp(pygame.sprite.Sprite):
                 player.upgrade_ship()
                 self.remove()
             elif self.type == 2:
+                player.game.score += 50
+                # player.game.smart_bomb_count += 1
                 self.remove()

@@ -18,18 +18,31 @@ class Screen:
 
         #Background
         pygame.display.set_caption("Shoot'em up")
-        self.background = pygame.image.load('PygameAssets/bgspace.jpg')
+        self.background = pygame.image.load('PygameAssets/space/bgspace.jpg')
         self.background = pygame.transform.scale(self.background, (self.bg_width, self.bg_height))
-        self.banner = pygame.image.load('PygameAssets/banner.png')
-        self.banner = pygame.transform.scale(self.banner, (500, 500))
+        self.banner = pygame.image.load('PygameAssets/space/banner.png')
+        self.banner = pygame.transform.scale(self.banner, (600, 500))
         self.banner_rect = self.banner.get_rect()
-        self.banner_rect.x = math.ceil(self.screen.get_width()/3)
+        self.banner_rect.x = math.ceil((self.screen.get_width()-600)/2)
+        self.banner_rect.y = math.ceil(self.screen.get_height()/70)
+        self.gameover = pygame.image.load('PygameAssets/gameover.png')
+        self.gameover = pygame.transform.scale(self.gameover, (700, 500))
+        self.gameover_rect = self.gameover.get_rect()
+        self.gameover_rect.x = math.ceil((self.screen.get_width()-700)/2)
+        self.gameover_rect.y = -700 
 
 
     def show_screen(self):
+
+        
         self.screen.blit(self.background, (0,0))
         self.screen.blit(self.banner, self.banner_rect)
-
+        
+    def end_screen(self):    
+        self.gameover_rect.y += 10
+        
+        
+            
     def change_bg(self, path):
         self.background = pygame.image.load(path)
         self.background = pygame.transform.scale(self.background, (self.bg_width, self.bg_height))
